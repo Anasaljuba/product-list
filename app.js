@@ -1,15 +1,14 @@
 const express = require("express");
-const products = require("./data");
+const { postController } = require("./controllers/productsController");
+const apiProductsRouter = require("./routers/productsRouter");
+const connectDB = require("./database");
+const dotenv = require("dotenv");
+dotenv.config();
+
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT;
+app.use(express.json());
+app.use("/api/products", apiProductsRouter);
+connectDB();
 
-app.get("/", (req, res) => {
-  res.send("HOME");
-});
-app.get("/api/products", (req, res) => {
-  res.send(products);
-});
-
-app.listen(PORT, () => {
-  console.log("Hello World");
-});
+app.listen(PORT, postController);
