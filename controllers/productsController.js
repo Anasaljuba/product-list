@@ -15,30 +15,54 @@ const showProducts = async (req, res) => {
     const product = await Product.find();
     res.json(product);
   } catch (error) {
-    res.status(500).json({ error: error.massage });
-  }
-};
-
-// to delete a product and if is not found to return Not-found
-const deleteProduct = (req, res) => {
-  const { productId } = req.params;
-  const productCheck = products.find((product) => +product.id === +productId);
-  if (productCheck) {
-    products = products.filter((product) => +product.id !== +productId);
-    res.status(204).end();
-  } else {
-    res.status(404).json({ msg: "Not Found" });
+    res.status(500).json({ error: error.message });
   }
 };
 
 // to post a product and push it to products JSON
-const postProduct = (req, res) => {
-  const product = {
-    id: Math.floor(Math.random() * 100000),
-    ...req.body,
-  };
-  products.push(product);
-  res.status(201).json(product);
+const postProduct = async (req, res) => {
+  try {
+    const product = req.body;
+    const createdProduct = await Product.create(product);
+    res.status(201).json({
+      msg: "Product got created successfully",
+      theProduct: createdProduct,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// to delete a product and if is not found to return Not-found
+const deleteProduct = async (req, res) => {
+  const { productId } = req.params;
+  const productCheck = await Product.findByIdAndDelete(productId);
+  try {
+    if (productCheck) {
+      res.status(204).end();
+    } else {
+      res.status(404).json({ msg: "Product is not found" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// to update a product
+const updateProduct = async (req, res) => {
+  const product = req.body;
+  const { productId } = req.params;
+  try {
+    const updateProduct = await Product.findByIdAndUpdate(productId, product, {
+      new: true,
+    });
+    res.status(200).json({
+      msg: "product updated successfully",
+      updateProduct: updateProduct,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 //to launch the app
@@ -53,4 +77,5 @@ module.exports = {
   deleteProduct,
   postProduct,
   postController,
+  updateProduct,
 };
